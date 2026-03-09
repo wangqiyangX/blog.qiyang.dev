@@ -1,0 +1,50 @@
+import { defineConfig, defineDocs } from "fumadocs-mdx/config";
+import { metaSchema, pageSchema } from "fumadocs-core/source/schema";
+import { remarkMdxMermaid } from "fumadocs-core/mdx-plugins";
+import { transformerTwoslash } from "fumadocs-twoslash";
+import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import {
+  remarkFeedbackBlock,
+  type RemarkFeedbackBlockOptions,
+} from "fumadocs-core/mdx-plugins/remark-feedback-block";
+
+const feedbackOptions: RemarkFeedbackBlockOptions = {
+  // other options:
+};
+
+export const posts = defineDocs({
+  dir: "content/posts",
+  docs: {
+    schema: pageSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [
+      remarkMdxMermaid,
+      remarkMath,
+      [remarkFeedbackBlock, feedbackOptions],
+    ],
+    rehypePlugins: (v) => [rehypeKatex, ...v],
+    rehypeCodeOptions: {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+      transformers: [
+        ...(rehypeCodeDefaultOptions.transformers ?? []),
+        transformerTwoslash(),
+      ],
+      langs: ["js", "jsx", "ts", "tsx"],
+    },
+  },
+});
