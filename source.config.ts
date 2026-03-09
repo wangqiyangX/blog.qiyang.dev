@@ -5,11 +5,16 @@ import { transformerTwoslash } from "fumadocs-twoslash";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import { z } from "zod";
+
+const postSchema = pageSchema.extend({
+  draft: z.boolean().optional(),
+});
 
 export const posts = defineDocs({
   dir: "content",
   docs: {
-    schema: pageSchema,
+    schema: postSchema,
     postprocess: {
       includeProcessedMarkdown: true,
     },
