@@ -14,6 +14,7 @@
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-popover": "^1.1.15",
     "@takumi-rs/image-response": "^0.71.2",
+    "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "fumadocs-core": "16.6.12",
     "fumadocs-mdx": "14.2.9",
