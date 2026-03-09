@@ -11,9 +11,7 @@ import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import { gitConfig } from "@/lib/layout.shared";
-import { Feedback } from "@/components/feedback/client";
-import posthog from "posthog-js";
-import { onBlockFeedbackAction, onPageFeedbackAction } from "@/lib/github";
+import GiscusComment from "@/components/giscus";
 
 export default async function Page(props: PageProps<"/posts/[[...slug]]">) {
   const params = await props.params;
@@ -47,7 +45,7 @@ export default async function Page(props: PageProps<"/posts/[[...slug]]">) {
           })}
         />
       </DocsBody>
-      <Feedback onSendAction={onPageFeedbackAction} />
+      <GiscusComment />
     </DocsPage>
   );
 }
