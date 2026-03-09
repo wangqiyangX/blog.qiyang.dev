@@ -1,0 +1,11 @@
+{
+  "title": "Posts",
+  "pages": [
+    "index",
+    "engineering",
+    "frontend",
+    "ai-workflows",
+    "projects",
+    "notes"
+  ]
+}

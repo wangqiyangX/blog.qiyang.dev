@@ -5,17 +5,9 @@ import { transformerTwoslash } from "fumadocs-twoslash";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
-import {
-  remarkFeedbackBlock,
-  type RemarkFeedbackBlockOptions,
-} from "fumadocs-core/mdx-plugins/remark-feedback-block";
-
-const feedbackOptions: RemarkFeedbackBlockOptions = {
-  // other options:
-};
 
 export const posts = defineDocs({
-  dir: "content/posts",
+  dir: "content",
   docs: {
     schema: pageSchema,
     postprocess: {
@@ -32,7 +24,6 @@ export default defineConfig({
     remarkPlugins: [
       remarkMdxMermaid,
       remarkMath,
-      [remarkFeedbackBlock, feedbackOptions],
     ],
     rehypePlugins: (v) => [rehypeKatex, ...v],
     rehypeCodeOptions: {

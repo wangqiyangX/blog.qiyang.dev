@@ -4,7 +4,7 @@ import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
-  baseUrl: '/posts',
+  baseUrl: '/',
   source: posts.toFumadocsSource(),
   plugins: [lucideIconsPlugin()],
 });
@@ -14,7 +14,7 @@ export function getPageImage(page: InferPageType<typeof source>) {
 
   return {
     segments,
-    url: `/og/posts/${segments.join('/')}`,
+    url: `/og/${segments.join('/')}`,
   };
 }
 

@@ -9,8 +9,8 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/posts/:path*.mdx',
-        destination: '/llms.mdx/posts/:path*',
+        source: '/:path*.mdx',
+        destination: '/llms.mdx/:path*',
       },
     ];
   },

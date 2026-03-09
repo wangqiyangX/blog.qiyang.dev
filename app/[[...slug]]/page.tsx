@@ -13,9 +13,15 @@ import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import { gitConfig } from "@/lib/layout.shared";
 import GiscusComment from "@/components/giscus";
 
-export default async function Page(props: PageProps<"/posts/[[...slug]]">) {
-  const params = await props.params;
-  const page = source.getPage(params.slug);
+type DocsPageProps = {
+  params: Promise<{
+    slug?: string[];
+  }>;
+};
+
+export default async function Page({ params }: DocsPageProps) {
+  const { slug } = await params;
+  const page = source.getPage(slug);
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -34,13 +40,12 @@ export default async function Page(props: PageProps<"/posts/[[...slug]]">) {
         <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
         <ViewOptions
           markdownUrl={`${page.url}.mdx`}
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/posts/${page.path}`}
+          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/${page.path}`}
         />
       </div>
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
           })}
         />
@@ -54,11 +59,11 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata(
-  props: PageProps<"/posts/[[...slug]]">,
-): Promise<Metadata> {
-  const params = await props.params;
-  const page = source.getPage(params.slug);
+export async function generateMetadata({
+  params,
+}: DocsPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = source.getPage(slug);
   if (!page) notFound();
 
   return {
