@@ -19,7 +19,7 @@ const GiscusComment = () => {
       reactionsEnabled="1"
       emitMetadata="0"
       inputPosition="top"
-      theme={theme}
+      theme={theme === "light" ? "light" : "dark"}
       lang="en"
       loading="lazy"
     />
