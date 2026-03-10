@@ -2,11 +2,11 @@
   "title": "Posts",
   "pages": [
     "index",
+    "notes",
     "engineering",
     "frontend",
     "mobile",
     "ai-workflows",
-    "projects",
-    "notes"
+    "projects"
   ]
 }
