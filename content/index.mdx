@@ -3,6 +3,9 @@ title: "Introduction"
 description: "A personal blog about software, building, and ideas in progress."
 ---
 
+import { GraphView } from '@/components/graph-view';
+import { buildGraph } from '@/lib/build-graph';
+
 Welcome to my personal blog.
 
 I use this space to write about software engineering, frontend development,
@@ -32,3 +35,9 @@ tools that improve how we work, you will likely find something useful here.
   learned from making things.
 - [Notes](/notes): shorter thoughts, small experiments, and ideas that are
   useful before they become full essays.
+
+## A graph of all pages
+
+<div>
+    <GraphView graph={buildGraph()} />
+</div>

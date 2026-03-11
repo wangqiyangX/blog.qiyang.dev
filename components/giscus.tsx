@@ -2,9 +2,19 @@
 
 import Giscus from "@giscus/react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const GiscusComment = () => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Giscus
@@ -15,11 +25,10 @@ const GiscusComment = () => {
       categoryId="DIC_kwDORiAlK84C3_qj"
       mapping="pathname"
       strict="0"
-      term="Welcome to @giscus/react component!"
       reactionsEnabled="1"
       emitMetadata="0"
       inputPosition="top"
-      theme={theme === "light" ? "light" : "dark"}
+      theme={resolvedTheme === "dark" ? "dark" : "light"}
       lang="en"
       loading="lazy"
     />

@@ -24,14 +24,11 @@ export default async function Page({ params }: DocsPageProps) {
   const page = source.getPage(slug);
   if (!page) notFound();
 
-  const MDX = page.data.body;
+  // const MDX = page.data.body;
+  const { body: MDX, toc, full, lastModified } = page.data;
 
   return (
-    <DocsPage
-      toc={page.data.toc}
-      full={page.data.full}
-      tableOfContent={{ style: "clerk" }}
-    >
+    <DocsPage toc={toc} full={full} tableOfContent={{ style: "clerk" }}>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">
         {page.data.description}
@@ -50,7 +47,14 @@ export default async function Page({ params }: DocsPageProps) {
           })}
         />
       </DocsBody>
-      <GiscusComment />
+      <div className="border-y py-3">
+        <GiscusComment />
+      </div>
+      {lastModified && (
+        <div className="text-sm text-fd-muted-foreground">
+          Last updated on {lastModified.toLocaleDateString()}
+        </div>
+      )}
     </DocsPage>
   );
 }
