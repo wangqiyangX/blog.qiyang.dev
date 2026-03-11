@@ -1,0 +1,12 @@
+---
+title: "Change MacBook Name"
+description: "How to change Macbook name and local hostname"
+---
+
+```bash
+NAME="mbp-dev"
+
+sudo scutil --set ComputerName "$NAME"
+sudo scutil --set HostName "$NAME"
+sudo scutil --set LocalHostName "$NAME"
+```
