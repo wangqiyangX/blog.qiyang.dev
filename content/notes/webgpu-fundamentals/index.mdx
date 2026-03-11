@@ -293,3 +293,89 @@ The result of `encoder.finish()` needs to be submitted to the queue via `device.
   title="admiring-paper-thdz7t"
   height={320}
 />
+
+The methods like `setPipeline` and `draw` only add commands to the command buffer, they do not execute them immediately until the command buffer is submitted to the queue.
+
+---
+
+WebGPU takes all vertexs from vertex shaders to rasterize a triangle, it determines which pixel's center are inside the triangle and writes the color(fragment shader output) to those pixels.
+
+![rasterize a triangle](./rasterize-a-triangle.png)
+
+**Take ways:**
+
+- WebGPU just runs shaders.
+- Shaders are specified in a shader module.
+- WebGPU draws to textures.
+- WebGPU works by encoding commands and then submitting them.
+
+## Run computations on the GPU
+
+```javascript
+async function main() {
+    const adapter = await navigator.gpu?.requestAdapter();
+    const device = await adapter?.requestDevice();
+    if (!device) {
+        fail("need a browser that supports WebGPU");
+        return;
+    }
+
+    const module = device.createShaderModule({
+        label: "doubling compute module",
+        code: /* wgsl */ `
+  @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+
+  @compute @workgroup_size(1) fn computeSomething(
+    @builtin(global_invocation_id) id: vec3u
+  ) {
+    let i = id.x;
+    data[i] = data[i] * 2.0;
+  }
+`,
+    });
+}
+```
+
+`storage` is a type, the `read_write` describes the access mode of the binding, which allows the binding to be read from and written to by the shader.
+
+`@group(0) @binding(0)` specifies the data on binding 0 in binding group 0.
+
+Use `@compute` attribute to make a function as a compute shader.
+
+Compute shaders required a `@workgroup_size` attribute to specify the number of threads in each workgroup.
+
+`vec3u` is a 3-component unsigned 32-bit integer vector type.
+
+---
+
+Create a pipeline for the compute shader.
+
+```javascript
+const pipeline = device.createComputePipeline({
+    label: 'doubling compute pipeline',
+    layout: 'auto',
+    compute: {
+      module,
+    },
+  });
+```
+
+The same as above `vertex` and `fragment` options.
+
+---
+
+Now, we need pass a int array to the compute shader, so we create a buffer and copy the data into it.
+
+```javascript
+const input = new Float32Array([1, 3, 5]);
+
+// create a buffer on the GPU to hold our computation
+// input and output
+const workBuffer = device.createBuffer({
+  label: 'work buffer',
+  size: input.byteLength,
+  usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+});
+// Copy our input data to that buffer
+device.queue.writeBuffer(workBuffer, 0, input);
+```
