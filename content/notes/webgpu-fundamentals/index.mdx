@@ -289,9 +289,9 @@ The result of `encoder.finish()` needs to be submitted to the queue via `device.
 ![webgpu simple triangle diagram](./webgpu-simple-triangle-diagram.svg)
 
 <CodeSandbox
-  src="https://codesandbox.io/embed/thdz7t?view=preview&module=%2Findex.html&hidenavigation=1"
+  src="https://codesandbox.io/embed/3wc73r?view=preview&module=%2Fsrc%2Findex.js&hidenavigation=1"
   title="admiring-paper-thdz7t"
-  height={320}
+  height={500}
 />
 
 The methods like `setPipeline` and `draw` only add commands to the command buffer, they do not execute them immediately until the command buffer is submitted to the queue.
@@ -379,3 +379,142 @@ const workBuffer = device.createBuffer({
 // Copy our input data to that buffer
 device.queue.writeBuffer(workBuffer, 0, input);
 ```
+
+The WebGPU buffer have to set `usage` to specify how the buffer will be used.
+
+In this case, we use `GPUBufferUsage.STORAGE` to allow the buffer to be used as a storage buffer,
+`GPUBufferUsage.COPY_SRC` to allow the data to be copied from the buffer, and `GPUBufferUsage.COPY_DST` to allow the data to be copied to the buffer.
+
+---
+
+We can not directly read from buffer in the JavaScript, because some buffers only exist on the GPU.
+
+So we need to create a result buffer to map the output data.
+
+```javascript
+// create a buffer on the GPU to get a copy of the results
+const resultBuffer = device.createBuffer({
+    label: "result buffer",
+    size: input.byteLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+});
+```
+
+The above buffer is created with `GPUBufferUsage.MAP_READ` so we can map it to read the results from the GPU.
+
+---
+
+Next, we create a bind group to bind the input and output buffers to the compute pipeline.
+
+```javascript
+// Setup a bindGroup to tell the shader which
+// buffer to use for the computation
+const bindGroup = device.createBindGroup({
+    label: "bindGroup for work buffer",
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: workBuffer }],
+});
+```
+
+The `{binding: 0 ...` of the entries corresponds to the `@group(0) @binding(0)` in the shader.
+
+---
+
+Finally, we create a compute pass to dispatch the compute shader.
+
+```javascript
+// Encode commands to do the computation
+const encoder = device.createCommandEncoder({
+    label: "doubling encoder",
+});
+const pass = encoder.beginComputePass({
+    label: "doubling compute pass",
+});
+pass.setPipeline(pipeline);
+pass.setBindGroup(0, bindGroup);
+pass.dispatchWorkgroups(input.length);
+pass.end();
+```
+
+The `dispatchWorkgroups` call tells the GPU how many workgroups to dispatch, and in this case, we pass `input.length`.
+
+![webgpu-simple-compute-diagram](./webgpu-simple-compute-diagram.svg)
+
+---
+
+```javascript
+// Encode a command to copy the results to a mappable buffer.
+encoder.copyBufferToBuffer(
+    workBuffer,
+    0,
+    resultBuffer,
+    0,
+    resultBuffer.size,
+);
+
+// Finish encoding and submit the commands
+const commandBuffer = encoder.finish();
+device.queue.submit([commandBuffer]);
+
+// Read the results
+await resultBuffer.mapAsync(GPUMapMode.READ);
+const result = new Float32Array(resultBuffer.getMappedRange());
+
+console.log("input", input);
+console.log("result", result);
+
+resultBuffer.unmap();
+```
+
+After the computation is done, use `mapAsync` to read the results from the buffer.
+
+The `getMappedRange` returns a value and only works until `unmap` is called.
+
+<CodeSandbox
+  src="https://codesandbox.io/embed/mhv95p?view=preview&module=%2Fsrc%2Findex.js&hidenavigation=1&expanddevtools=1"
+  title="admiring-paper-thdz7t"
+  height={500}
+/>
+
+## Simple Canvas Resizing
+
+```html
+<style>
+html, body {
+  margin: 0;       /* remove the default margin          */
+  height: 100%;    /* make the html,body fill the page   */
+}
+canvas {
+  display: block;  /* make the canvas act like a block   */
+  width: 100%;     /* make the canvas fill its container */
+  height: 100%;
+}
+</style>
+```
+
+The `style` tag above ensures the canvas fills the entire viewport.
+
+But you will see that the triangle's edges are not smooth.
+
+The `canvas` tag have a resolution of 300x500 pixels by default, so we need to scale it up.
+
+We can use [`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) to listen for changes to the canvas size and scale it up.
+
+```javascript
+render(); // [!code --]
+const observer = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    const canvas = entry.target;
+    const width = entry.contentBoxSize[0].inlineSize;
+    const height = entry.contentBoxSize[0].blockSize;
+    canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+    canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+  }
+  // re-render
+  render();
+});
+observer.observe(canvas);
+```
+
+The largest size of canvas supported by the device is `device.limits.maxTextureDimension2D`.
+The smallest size can not go to zero.
