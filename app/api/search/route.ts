@@ -1,9 +1,17 @@
 import { source } from "@/lib/source";
 import { createFromSource } from "fumadocs-core/search/server";
+import { createTokenizer } from "@orama/tokenizers/mandarin";
 
 export const { GET } = createFromSource(source, {
   localeMap: {
-    en: "english",
-    zh: "chinese",
+    en: {
+      language: "english",
+    },
+    // Fumadocs recommends a dedicated Mandarin tokenizer for Chinese search.
+    zh: {
+      components: {
+        tokenizer: createTokenizer(),
+      },
+    },
   },
 });

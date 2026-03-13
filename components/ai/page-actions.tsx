@@ -44,6 +44,7 @@ export function LLMCopyButton({
 
   return (
     <button
+      type="button"
       disabled={isLoading}
       className={cn(
         buttonVariants({
@@ -224,6 +225,7 @@ export function ViewOptions({
   if (!mounted) {
     return (
       <button
+        type="button"
         disabled
         className={cn(
           buttonVariants({
@@ -242,6 +244,7 @@ export function ViewOptions({
   return (
     <Popover>
       <PopoverTrigger
+        type="button"
         className={cn(
           buttonVariants({
             color: 'secondary',

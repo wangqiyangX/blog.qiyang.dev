@@ -58,6 +58,7 @@ export function extractLocaleFromSlug(slug?: string[]): {
 }
 
 export type AppI18nText = {
+  siteTitle: string;
   copyMarkdown: string;
   open: string;
   openInGithub: string;
@@ -73,6 +74,7 @@ export type AppI18nText = {
 
 const appText: Record<Locale, AppI18nText> = {
   en: {
+    siteTitle: "Qiyang's Blog",
     copyMarkdown: "Copy Markdown",
     open: "Open",
     openInGithub: "Open in GitHub",
@@ -86,6 +88,7 @@ const appText: Record<Locale, AppI18nText> = {
     giscusLang: "en",
   },
   zh: {
+    siteTitle: "Qiyang 的博客",
     copyMarkdown: "复制 Markdown",
     open: "打开",
     openInGithub: "在 GitHub 打开",
@@ -102,4 +105,28 @@ const appText: Record<Locale, AppI18nText> = {
 
 export function getAppI18nText(locale: Locale): AppI18nText {
   return appText[locale];
+}
+
+export function getSiteTitle(locale: Locale): string {
+  return appText[locale].siteTitle;
+}
+
+const dateFormatters: Record<Locale, Intl.DateTimeFormat> = {
+  en: new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }),
+  zh: new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }),
+};
+
+export function formatLocalizedDate(
+  date: Date | number,
+  locale: Locale,
+): string {
+  return dateFormatters[locale].format(date);
 }

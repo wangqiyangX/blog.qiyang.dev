@@ -2,7 +2,7 @@ import { getPageImage, source } from "@/lib/source";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "@takumi-rs/image-response";
 import { generate as DefaultImage } from "fumadocs-ui/og/takumi";
-import { extractLocaleFromSlug } from "@/lib/i18n";
+import { extractLocaleFromSlug, getSiteTitle } from "@/lib/i18n";
 
 export const revalidate = false;
 
@@ -23,7 +23,7 @@ export async function GET(_req: Request, { params }: OGRouteContext) {
     <DefaultImage
       title={page.data.title}
       description={page.data.description}
-      site="Qiyang's Blog"
+      site={getSiteTitle(locale)}
     />,
     {
       width: 1200,

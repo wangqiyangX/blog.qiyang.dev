@@ -1,5 +1,9 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { i18n } from "@/lib/i18n";
+import { getSiteTitle, i18n, type Locale } from "@/lib/i18n";
+import {
+  LocalizedLargeSearchToggle,
+  LocalizedSearchToggle,
+} from "@/components/search-ui";
 
 export const gitConfig = {
   user: "wangqiyangX",
@@ -7,12 +11,18 @@ export const gitConfig = {
   branch: "main",
 };
 
-export function baseOptions(): BaseLayoutProps {
+export function baseOptions(locale: Locale): BaseLayoutProps {
   return {
     nav: {
-      title: "Qiyang's Blog",
+      title: getSiteTitle(locale),
     },
     i18n,
+    searchToggle: {
+      components: {
+        sm: <LocalizedSearchToggle hideIfDisabled className="p-2" />,
+        lg: <LocalizedLargeSearchToggle hideIfDisabled />,
+      },
+    },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
   };
 }

@@ -12,7 +12,12 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import { gitConfig } from "@/lib/layout.shared";
 import GiscusComment from "@/components/giscus";
-import { getAppI18nText, i18n, resolveLocale } from "@/lib/i18n";
+import {
+  formatLocalizedDate,
+  getAppI18nText,
+  i18n,
+  resolveLocale,
+} from "@/lib/i18n";
 
 type DocsPageProps = {
   params: Promise<{
@@ -57,7 +62,7 @@ export default async function Page({ params }: DocsPageProps) {
       </div>
       {lastModified && (
         <div className="text-sm text-fd-muted-foreground">
-          {text.lastUpdatedOn} {lastModified.toLocaleDateString(locale)}
+          {text.lastUpdatedOn} {formatLocalizedDate(lastModified, locale)}
         </div>
       )}
     </DocsPage>
