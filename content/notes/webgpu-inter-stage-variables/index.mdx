@@ -1,0 +1,127 @@
+---
+title: "WebGPU Inter-stage Variables"
+description: ""
+---
+
+The inter-stage variables are the values between shader vertex and fragment stages.
+
+```wgsl
+struct OurVertexShaderOutput {
+  @builtin(position) position: vec4f,
+  @location(0) color: vec4f,
+};
+```
+
+The `struct` coordinates the inter-stage variables between the vertex and fragment shaders.
+
+Now, we change the vertex shader output as a struct.
+
+```wgsl
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32
+) -> @builtin(position) vec4f { // [!code --]
+) -> OurVertexShaderOutput {    // [!code ++]
+  let pos = array(
+    vec2f( 0.0,  0.5),  // top center
+    vec2f(-0.5, -0.5),  // bottom left
+    vec2f( 0.5, -0.5)   // bottom right
+  );
+  var color = array<vec4f, 3>(
+    vec4f(1, 0, 0, 1), // red
+    vec4f(0, 1, 0, 1), // green
+    vec4f(0, 0, 1, 1), // blue
+  );
+
+  var vsOutput: OurVertexShaderOutput;
+  vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+  vsOutput.color = color[vertexIndex];
+  return vsOutput;
+}
+```
+
+The vertex shader now returns a `OurVertexShaderOutput` struct, which contains the `position` and `color` fields.
+
+When the fragment shader receives this struct:
+
+```wgsl
+@fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
+  return fsInput.color;
+}
+```
+
+So, we can see that triangle have three vertices with different colors.
+
+<CodeSandbox
+  src="https://codesandbox.io/embed/zjqymm?view=preview&module=%2Findex.html&hidenavigation=1"
+  title="webgpu-inter-stage-variables-triangle"
+  height={500}
+/>
+
+
+## Inter-stage variables connect by `location`
+
+The connection between vertex shader and fragment shader is by index, and the inter-stage variables is by location index.
+
+So, use the `@location(0)` change struct still works.
+
+```wgsl
+@fragment fn fs(@location(0) color: vec4f) -> @location(0) vec4f {
+  return color;
+}
+```
+
+## `@builtin(position)`
+
+```wgsl
+struct OurVertexShaderOutput {
+  @builtin(position) position: vec4f, // [!code highlight]
+  @location(0) color: vec4f,
+};
+```
+
+The `@builtin(position)` field is a `builtin` variable.
+
+The `@builtin(position)` between vertex shader and fragment shader is different.
+
+Pixel coordinates are specified by the edges of pixels.
+
+The values provided to the fragment shader are the coordinates of the center of the pixel.
+
+If the texture we were drawing to was 3x2 pixels in size, these would be the coordinates:
+
+![webgpu pixels](./webgpu-pixels.svg)
+
+```javascript
+const module = device.createShaderModule({
+  label: 'our hardcoded checkerboard triangle shaders',
+  code: /* wgsl */ `
+    struct OurVertexShaderOutput {
+      @builtin(position) position: vec4f,
+    };
+
+    @vertex fn vs(
+      @builtin(vertex_index) vertexIndex : u32
+    ) -> OurVertexShaderOutput {
+      let pos = array(
+        vec2f( 0.0,  0.5),  // top center
+        vec2f(-0.5, -0.5),  // bottom left
+        vec2f( 0.5, -0.5)   // bottom right
+      );
+
+      var vsOutput: OurVertexShaderOutput;
+      vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+      return vsOutput;
+    }
+
+    @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
+      let red = vec4f(1, 0, 0, 1);
+      let cyan = vec4f(0, 1, 1, 1);
+
+      let grid = vec2u(fsInput.position.xy) / 8;
+      let checker = (grid.x + grid.y) % 2 == 1;
+
+      return select(red, cyan, checker);
+    }
+  `,
+});
+```
