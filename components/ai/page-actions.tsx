@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
+import type { AppI18nText } from '@/lib/i18n';
 
 const cache = new Map<string, string>();
 
@@ -13,8 +14,10 @@ export function LLMCopyButton({
    * A URL to fetch the raw Markdown/MDX content of page
    */
   markdownUrl,
+  text,
 }: {
   markdownUrl: string;
+  text: AppI18nText;
 }) {
   const [isLoading, setLoading] = useState(false);
   const [checked, onClick] = useCopyButton(async () => {
@@ -52,7 +55,7 @@ export function LLMCopyButton({
       onClick={onClick}
     >
       {checked ? <Check /> : <Copy />}
-      Copy Markdown
+      {text.copyMarkdown}
     </button>
   );
 }
@@ -60,6 +63,7 @@ export function LLMCopyButton({
 export function ViewOptions({
   markdownUrl,
   githubUrl,
+  text,
 }: {
   /**
    * A URL to the raw Markdown/MDX content of page
@@ -70,6 +74,7 @@ export function ViewOptions({
    * Source file URL on GitHub
    */
   githubUrl: string;
+  text: AppI18nText;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -83,7 +88,7 @@ export function ViewOptions({
 
     return [
       {
-        title: 'Open in GitHub',
+        title: text.openInGithub,
         href: githubUrl,
         icon: (
           <svg fill="currentColor" role="img" viewBox="0 0 24 24">
@@ -93,12 +98,12 @@ export function ViewOptions({
         ),
       },
       {
-        title: 'View as Markdown',
+        title: text.viewAsMarkdown,
         href: markdownUrl,
         icon: <TextIcon />,
       },
       {
-        title: 'Open in Scira AI',
+        title: text.openInScira,
         href: `https://scira.ai/?${new URLSearchParams({
           q,
         })}`,
@@ -162,7 +167,7 @@ export function ViewOptions({
         ),
       },
       {
-        title: 'Open in ChatGPT',
+        title: text.openInChatGPT,
         href: `https://chatgpt.com/?${new URLSearchParams({
           hints: 'search',
           q,
@@ -180,7 +185,7 @@ export function ViewOptions({
         ),
       },
       {
-        title: 'Open in Claude',
+        title: text.openInClaude,
         href: `https://claude.ai/new?${new URLSearchParams({
           q,
         })}`,
@@ -197,7 +202,7 @@ export function ViewOptions({
         ),
       },
       {
-        title: 'Open in Cursor',
+        title: text.openInCursor,
         icon: (
           <svg
             fill="currentColor"
@@ -214,7 +219,7 @@ export function ViewOptions({
         })}`,
       },
     ];
-  }, [githubUrl, markdownUrl, mounted]);
+  }, [githubUrl, markdownUrl, mounted, text]);
 
   if (!mounted) {
     return (
@@ -228,7 +233,7 @@ export function ViewOptions({
           }),
         )}
       >
-        Open
+        {text.open}
         <ChevronDown className="size-3.5 text-fd-muted-foreground" />
       </button>
     );
@@ -245,7 +250,7 @@ export function ViewOptions({
           }),
         )}
       >
-        Open
+        {text.open}
         <ChevronDown className="size-3.5 text-fd-muted-foreground" />
       </PopoverTrigger>
       <PopoverContent className="flex flex-col">

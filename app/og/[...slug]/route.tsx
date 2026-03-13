@@ -2,6 +2,7 @@ import { getPageImage, source } from "@/lib/source";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "@takumi-rs/image-response";
 import { generate as DefaultImage } from "fumadocs-ui/og/takumi";
+import { extractLocaleFromSlug } from "@/lib/i18n";
 
 export const revalidate = false;
 
@@ -13,7 +14,9 @@ type OGRouteContext = {
 
 export async function GET(_req: Request, { params }: OGRouteContext) {
   const { slug } = await params;
-  const page = source.getPage(slug.slice(0, -1));
+  const imagePath = slug.slice(0, -1);
+  const { locale, slugs } = extractLocaleFromSlug(imagePath);
+  const page = source.getPage(slugs, locale);
   if (!page) notFound();
 
   return new ImageResponse(
@@ -32,7 +35,6 @@ export async function GET(_req: Request, { params }: OGRouteContext) {
 
 export function generateStaticParams() {
   return source.getPages().map((page) => ({
-    lang: page.locale,
     slug: getPageImage(page).segments,
   }));
 }

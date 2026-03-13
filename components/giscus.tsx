@@ -3,8 +3,9 @@
 import Giscus from "@giscus/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import type { AppI18nText } from "@/lib/i18n";
 
-const GiscusComment = () => {
+const GiscusComment = ({ text }: { text: AppI18nText }) => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -29,7 +30,7 @@ const GiscusComment = () => {
       emitMetadata="0"
       inputPosition="top"
       theme={resolvedTheme === "dark" ? "dark" : "light"}
-      lang="en"
+      lang={text.giscusLang}
       loading="lazy"
     />
   );
