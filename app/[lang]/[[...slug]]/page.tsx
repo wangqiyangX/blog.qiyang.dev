@@ -12,17 +12,26 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import { gitConfig } from "@/lib/layout.shared";
 import GiscusComment from "@/components/giscus";
+import {
+  formatLocalizedDate,
+  getAppI18nText,
+  i18n,
+  resolveLocale,
+} from "@/lib/i18n";
 
 type DocsPageProps = {
   params: Promise<{
+    lang: string;
     slug?: string[];
   }>;
 };
 
 export default async function Page({ params }: DocsPageProps) {
-  const { slug } = await params;
-  const page = source.getPage(slug);
+  const { lang, slug } = await params;
+  const locale = resolveLocale(lang);
+  const page = source.getPage(slug, locale);
   if (!page) notFound();
+  const text = getAppI18nText(locale);
 
   // const MDX = page.data.body;
   const { body: MDX, toc, full, lastModified } = page.data;
@@ -34,10 +43,11 @@ export default async function Page({ params }: DocsPageProps) {
         {page.data.description}
       </DocsDescription>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
-        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+        <LLMCopyButton markdownUrl={`${page.url}.mdx`} text={text} />
         <ViewOptions
           markdownUrl={`${page.url}.mdx`}
           githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/${page.path}`}
+          text={text}
         />
       </div>
       <DocsBody>
@@ -48,11 +58,11 @@ export default async function Page({ params }: DocsPageProps) {
         />
       </DocsBody>
       <div className="border-y py-3">
-        <GiscusComment />
+        <GiscusComment text={text} />
       </div>
       {lastModified && (
         <div className="text-sm text-fd-muted-foreground">
-          Last updated on {lastModified.toLocaleDateString()}
+          {text.lastUpdatedOn} {formatLocalizedDate(lastModified, locale)}
         </div>
       )}
     </DocsPage>
@@ -60,14 +70,27 @@ export default async function Page({ params }: DocsPageProps) {
 }
 
 export async function generateStaticParams() {
-  return source.generateParams();
+  const params: { lang: string; slug?: string[] }[] = [];
+
+  for (const locale of i18n.languages) {
+    for (const page of source.getPages(locale)) {
+      if (page.slugs.length > 0) {
+        params.push({ lang: locale, slug: page.slugs });
+      } else {
+        params.push({ lang: locale });
+      }
+    }
+  }
+
+  return params;
 }
 
 export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const page = source.getPage(slug);
+  const { lang, slug } = await params;
+  const locale = resolveLocale(lang);
+  const page = source.getPage(slug, locale);
   if (!page) notFound();
 
   return {
