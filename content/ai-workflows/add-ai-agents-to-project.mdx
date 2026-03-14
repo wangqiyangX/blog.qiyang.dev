@@ -1,0 +1,53 @@
+---
+title: "Help Your Agents Understand Next.js Development"
+description: "A quick introduction to giving coding agents like Codex much stronger capabilities when working in Next.js projects"
+---
+
+## Background
+
+In recent versions of Next.js, all official Next.js docs are bundled into
+`node_modules/next/dist/docs/` after project creation:
+
+```files
+node_modules/next/dist/docs/
+├── 01-app/
+│   ├── 01-getting-started/
+│   ├── 02-guides/
+│   └── 03-api-reference/
+├── 02-pages/
+├── 03-architecture/
+└── index.mdx
+```
+
+That means coding agents can easily access these docs to understand how
+Next.js works and which APIs are available.
+
+## How to Enable It
+
+The latest `create-next-app` now creates `AGENTS.md` and `CLAUDE.md`
+automatically when scaffolding a new project. These files are used to store
+context for coding agents.
+
+```bash
+bun create next-app@canary
+```
+
+> If you do not need these files, you can disable them with the
+> `--no-agents` flag.
+
+For an existing project, first upgrade `next` to a recent version (anything
+after `v16.2.0-canary.37`), then create an `AGENTS.md` file manually with the
+following content:
+
+```md title="AGENTS.md"
+<!-- BEGIN:nextjs-agent-rules -->
+
+# Next.js: ALWAYS read docs before coding
+
+Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+
+<!-- END:nextjs-agent-rules -->
+```
+
+> If your project already has an `AGENTS.md` file, you can simply paste the
+> content above into it.

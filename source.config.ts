@@ -7,6 +7,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import { z } from "zod";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
+import { remarkMdxFiles } from 'fumadocs-core/mdx-plugins/remark-mdx-files';
 
 const postSchema = pageSchema.extend({
   draft: z.boolean().optional(),
@@ -29,7 +30,7 @@ export const posts = defineDocs({
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {
-    remarkPlugins: [remarkMdxMermaid, remarkMath],
+    remarkPlugins: [remarkMdxMermaid, remarkMath, remarkMdxFiles],
     rehypePlugins: (v) => [rehypeKatex, ...v],
     rehypeCodeOptions: {
       themes: {

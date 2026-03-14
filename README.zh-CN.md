@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-Qiyang 的个人博客与文档站，基于 Next.js 16 和 Fumadocs 构建。
+启阳的个人博客与文档站，基于 Next.js 16 和 Fumadocs 构建。
 
 ## 项目简介
 

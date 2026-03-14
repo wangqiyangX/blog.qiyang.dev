@@ -1,0 +1,378 @@
+---
+title: 'Shell 简介'
+description: '《The Missing Semester of Your CS Education IAP 2026》第一课的学习笔记'
+---
+
+> 前言省略，介绍了课程的出发点和课程结构。
+
+## Shell 是什么？
+
+Shell 是计算机的文本接口。
+
+在不同的系统上存在着自己的 Shell，本质上它也是一个计算机程序，它允许用户输入命令并打印输出结果。
+
+主流平台打开终端的方式：
+
+> 终端是 Shell 运行的环境
+
+Bash 是常用的 Shell，在 macOS 中是 zsh。
+
+## 为什么需要使用 Shell？
+
+Shell 本质上是一种编程语言。
+
+Shell 能够组合不同的应用程序，将一个程序的输出传递给另外一个程序。
+
+## 在 Shell 中导航
+
+Prompt 是 Shell 用于输入的地方。
+
+`~` 是 Home 目录的缩写。
+
+`$` 符号表示当前用户不是 Root 用户。
+
+通过输入程序名，能够在 Shell 中调用该程序：
+
+```bash
+date
+# 2026年 1月31日 星期六 12时45分48秒 CST
+```
+
+在 Shell 中执行程序是可以传入参数，参数以空格进行分割：
+
+```bash
+echo hello world
+# Hello World
+
+echo "hello world"
+# hello world
+
+echo "hello     world"
+# hello     world
+
+echo hello     world
+# hello world
+```
+
+可以使用引号或者转移字符确保参数在传递被正确划分。
+
+`man` 接受程序名作为参数，并返回对应程序的使用说明。
+
+使用参数 `--help` 或 `-h` 能够获取指定程序的简短描述。
+
+### cd
+
+`cd` （change directiry）是用于切换目录的命令，接受目标**路径**作为参数。
+
+```bash
+cd /bin
+```
+
+相对路径不以 `/` 开头，解析位于当前目录下的路径。
+
+`.` 表示当前目录
+`..` 表示上一个目录
+
+`/` 作为目录的分割符存在
+
+在 Bash 使用 Tab 键支持路径补全
+
+## 在 Shell 中能干什么？
+
+Shell 通过环境变量 PATH 来查找在 Prompt 中输入的程序名。
+
+```bash
+echo $PATH
+```
+
+当你输入一个程序名时，Shell 会按顺序去查找 `$PATH` 中的目录。
+
+通过 `which` 能够返回 Shell 能够找到指定程序存在的所有路径。
+
+```bash
+which date
+# /bin/date
+```
+
+### 其他一些有用的 Shell 程序
+
+### ls
+
+`cat` 会打印指定文件的内容
+`sort` 会对应输入文件的内容进行排序并返回，默认为字典序
+`uniq` 会过滤掉**连续**重复的行
+`head` 会打印指定文件的前几行，使用参数 `-n` 指定
+
+### tail
+
+会打印指定文件的后几行。
+
+### grep
+
+可以传入两个参数，在指定文件中搜索指定的字符串：
+
+```bash
+grep pattern file
+```
+
+grep 支持搜索目录，通过 `-r` 表示递归搜索目录中的所有文件。
+
+### sed
+
+`-i` 表示替换内部文本。
+
+```bash
+sed -i 's/pattern/replacement/g' file
+```
+
+`s/` 表示替换**模式（pattern）**，后面紧跟着替换的匹配模式， `/g` 表示替换所有的行。
+
+sed 会逐行执行。
+
+### find
+
+查找指定目录下描述的指定文件，描述包括类型、文件名等。
+
+### awk
+
+`awk` 能够解析具有一定语法结构等数据文件（例如 CSV 文件）。
+
+```bash
+awk '{print $2}' file
+```
+
+上述命令会打印出文件中每一行的第二个字段。
+
+## Shell 编程
+
+大多数的 Shell 都实现了完整的编程语言特性，例如 Bash。
+
+`>file` 将标准输出写入文件，`>>file` 将标准输出追加到文件。
+
+`<file` 将文件内容作为标准输入。
+
+### 条件判断
+
+```bash
+if command1; then command2; command3; fi
+```
+
+`test` 语句常用作条件判断，可缩写为 `[` 或 `[[`。
+
+例如：`test -f file` 等价于 `[ -f file ]`。
+
+### 循环
+
+支持 for 循环和 while 循环：
+
+```bash
+for varname in a b c d; do command; done executes command
+```
+
+```bash
+while command1; do command2; command3; done
+```
+
+```bash
+for i in $(seq 1 10); do
+```
+
+### .sh 文件
+
+对于过长的 Shell 脚本，在 Prompt 中编辑会很麻烦，因此可以使用编辑器将脚本保存为 `.sh` 文件。
+
+## 练习
+
+### 第 1 题
+
+```bash
+echo $SHELL
+# /bin/zsh
+```
+
+### 第 2 题
+
+`-l` 表示长列表格式，前 10 个字符描述文件类型和权限。
+
+```bash
+❯ ls -l /
+total 13
+drwxrwxr-x  45 root  admin  1440  1月 31 16:04 Applications
+drwxr-xr-x@ 39 root  wheel  1248 11月 22 21:49 bin
+drwxr-xr-x   2 root  wheel    64  7月 19  2025 cores
+dr-xr-xr-x   4 root  wheel  6218  1月 28 14:21 dev
+```
+
+### 第 3 题
+
+> [模式匹配](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html)
+
+glob（globbing pattern）是一种由 shell（如 Bash）在命令执行前进行展开的文件名模式匹配机制。
+
+它不是正则表达式，而是用于匹配路径名的一组简化通配规则。
+
+1. `*` 匹配任意长度字符（包括空）
+2. `?` 匹配单个字符
+3. `{}` 花括号展开（brace expansion）
+
+### 第 4 题
+
+> [引用](https://www.gnu.org/software/bash/manual/html_node/Quoting.html)
+
+1. 单引号强应用，引号内的内容几乎完全按字面量处理。
+2. 双引号弱引用，允许部分展开。
+3. ANSI-C 引用，Bash 特有的用于显式转义控制字符。
+
+```bash
+❯ echo $'Price is $5!\nDone.'
+Price is $5!
+Done.
+```
+
+### 第 5 题
+
+> [重定向](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
+
+分别重定向 stdout 和 stderr：
+
+```bash
+ls /nonexistent /tmp >out.txt 2>err.txt
+```
+
+将 stdout 和 stderr 重定向到同一个文件：
+
+```bash
+ls /nonexistent /tmp >all.txt 2>&1
+```
+
+### 第 6 题
+
+> [退出状态](https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html)
+
+```bash
+[ -d /tmp/mydir ] || mkdir /tmp/mydir
+```
+
+使用 `&&`：
+
+```bash
+[ ! -d /tmp/mydir ] && mkdir /tmp/mydir
+```
+
+使用 `$?`：
+
+```bash
+[ -d /tmp/mydir ]; echo $? || mkdir /tmp/mydir
+```
+
+### 第 7 题
+
+在 Unix/Linux 中，每个进程都有自己的当前工作目录（CWD），当 shell 运行一个外部程序时，会 `fork()` 出一个子进程，
+在子进程中 `exec()` 外部程序，子进程对自身状态的任何修改，都不会回传到父进程。
+
+### 第 8 题
+
+> [Bash 条件表达式](https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html)
+
+```swift title="check.sh"
+#!/usr/bin/env bash
+
+if [ -f "$1" ]; then
+  echo "File exists: $1"
+else
+  echo "File does not exis t: $1"
+fi
+```
+
+`$1`：脚本的第一个位置参数，即传入的文件名。
+
+### 第 9 题
+
+第一次直接运行会报错：
+
+```bash
+❯ ./check.sh somefile
+zsh: permission denied: ./check.sh
+```
+
+```bash
+❯ ls -l check.sh
+-rw-r--r--  1 wangqiyang  staff  108  1月 31 21:14 check.sh
+```
+
+修改
+
+```bash
+❯ ls -l check.sh
+-rwxr-xr-x  1 wangqiyang  staff  108  1月 31 21:14 check.sh
+```
+
+Unix 把是否可执行作为一个独立的权限位，shell 在执行 `./check.sh` 时不关心文件内容是不是脚本只检查是否有 x 权限，没有 x 权限文件只能被读取，不能被执行。
+
+### 第 10 题
+
+> [内置集合](https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html)
+
+在集合标志中添加 `-x`，可以实现执行追踪（也称为 xtrace）。
+
+```bash title="example.sh"
+#!/usr/bin/env bash
+
+set -x
+
+name="world"
+echo "Hello $name"
+ls /tmp
+```
+
+输出如下：
+
+```bash
++ name=world
++ echo 'Hello world'
+Hello world
++ ls /tmp
+```
+
+增加 `-x` 后，Shell 执行时会将每行命令打印到标准错误并在前缀增加 `+`，同时会打印命令展开后的结果。
+
+### 第 11 题
+
+> [指令替换](https://www.gnu.org/software/bash/manual/html_node/Command-Substitution.html)
+
+```bash
+cp notes.txt notes_$(date +%Y-%m-%d).txt
+```
+
+### 第 13 题
+
+> 逐步处理 → 汇总 → 排序 → 筛选
+
+```bash
+find ~ -type f | sed -n 's/.*\.//p' | sort | uniq -c | sort -rn | head -5
+```
+
+### 第 14 题
+
+```bash
+find . -type f -name "*.sh" -print0 | xargs -0 wc -l
+```
+
+### 第 15 题
+
+```bash
+curl -s https://missing.csail.mit.edu/ | grep -c 'class="lecture"'
+```
+
+### 第 16 题
+
+```bash
+curl -s https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json \
+| jq '.[] | select(.version > 6) | .name'
+```
+
+### 第 17 题
+
+```bash
+printf 'a 50 x\nb 150 y\nc 200 z\n' | awk '$2 > 100 { print $3, $2, $1 }'
+```

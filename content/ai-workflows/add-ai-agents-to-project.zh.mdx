@@ -1,0 +1,46 @@
+---
+title: "让你的 Agents 掌握 Next.js 开发"
+description: "简单介绍了如何让 Codex 等编程智能体具有更强大的 Next.js 项目开发能力"
+---
+
+## 背景
+
+在最近的 Next.js 版本中，在完成项目创建后，所有的 Next.js 官方文档会被打包到 `node_modules/next/dist/docs/`
+目录中：
+
+```files
+node_modules/next/dist/docs/
+├── 01-app/
+│   ├── 01-getting-started/
+│   ├── 02-guides/
+│   └── 03-api-reference/
+├── 02-pages/
+├── 03-architecture/
+└── index.mdx
+```
+
+因此，编程智能体可以轻松地访问这些文档来了解 Next.js 的工作原理和 API。
+
+## 如何接入
+
+最新的 `create-next-app` 在创建新项目时会自动创建 `AGENTS.md` 和 `CLAUDE.md` 文件，用于存储编程智能体的上下文信息。
+
+```bash
+bun create next-app@canary
+```
+
+> 如果你不需要这些文件，可以通过参数 `--no-agents` 来禁用它们的创建。
+
+对于已有的项目，先将 `next` 版本更到最新（`v16.2.0-canary.37`之后），然后手动创建 `AGENTS.md` 文件，文件内容如下：
+
+```md title="AGENTS.md"
+<!-- BEGIN:nextjs-agent-rules -->
+
+# Next.js: ALWAYS read docs before coding
+
+Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+
+<!-- END:nextjs-agent-rules -->
+```
+
+> 如果你的项目已经存在了 `AGENTS.md` 文件，可以直接将上述内容粘贴到文件中也行。

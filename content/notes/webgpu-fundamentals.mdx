@@ -15,7 +15,7 @@ A compute shader runs general-purpose logic across however many invocations you 
 
 You can think of shaders as functions that are uploaded to the GPU, similar to how you pass a callback to `Array.map()` in JavaScript.
 
-![simplified diagram of WebGPU setup](./webgpu-draw-diagram.svg)
+![simplified diagram of WebGPU setup](./assets/webgpu-draw-diagram.svg)
 
 The pipeline describes which vertex and fragment shaders the GPU should run, along with the configuration needed to execute them.
 
@@ -176,7 +176,7 @@ The `vs` function returns a `vec4f` value representing the vertex position in cl
 
 Positions returned by the vertex shader are expressed in _clip space_, where the X axis ranges from `-1` to `1` and the Y axis also ranges from `-1` to `1`.
 
-![clip space](./clipspace.svg)
+![clip space](./assets/clipspace.svg)
 
 The main logic of `vs` defines an array of three `vec2f` values, each storing the `x` and `y` coordinates of one vertex. It then converts the selected `vec2f` into a `vec4f` by supplying `0.0` for `z` and `1.0` for `w`.
 
@@ -286,7 +286,7 @@ Finally, end the render pass by calling `pass.end()`, and finish the command enc
 
 The result of `encoder.finish()` needs to be submitted to the queue via `device.queue.submit()`.
 
-![webgpu simple triangle diagram](./webgpu-simple-triangle-diagram.svg)
+![webgpu simple triangle diagram](./assets/webgpu-simple-triangle-diagram.svg)
 
 <CodeSandbox
   src="https://codesandbox.io/embed/3wc73r?view=preview&module=%2Fsrc%2Findex.js&hidenavigation=1"
@@ -300,7 +300,7 @@ The methods like `setPipeline` and `draw` only add commands to the command buffe
 
 WebGPU takes all vertexs from vertex shaders to rasterize a triangle, it determines which pixel's center are inside the triangle and writes the color(fragment shader output) to those pixels.
 
-![rasterize a triangle](./rasterize-a-triangle.png)
+![rasterize a triangle](./assets/rasterize-a-triangle.png)
 
 **Take ways:**
 
@@ -438,7 +438,7 @@ pass.end();
 
 The `dispatchWorkgroups` call tells the GPU how many workgroups to dispatch, and in this case, we pass `input.length`.
 
-![webgpu-simple-compute-diagram](./webgpu-simple-compute-diagram.svg)
+![webgpu-simple-compute-diagram](./assets/webgpu-simple-compute-diagram.svg)
 
 ---
 

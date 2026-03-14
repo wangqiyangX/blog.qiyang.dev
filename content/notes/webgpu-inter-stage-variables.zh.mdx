@@ -1,9 +1,9 @@
 ---
-title: "WebGPU Inter-stage Variables"
+title: "WebGPU 阶段间变量"
 description: ""
 ---
 
-The inter-stage variables are the values between shader vertex and fragment stages.
+阶段间变量是在 GPU 渲染管线中，从一个 shader 阶段传递到下一个阶段的变量。
 
 ```wgsl
 struct OurVertexShaderOutput {
@@ -49,7 +49,7 @@ When the fragment shader receives this struct:
 }
 ```
 
-So, we can see that triangle have three vertices with different colors.
+阶段间变量会自动执行插值，因此可以看见三角形三个顶点为设置的颜色，然后中间部分为有过渡效果的渐变：
 
 <CodeSandbox
   src="https://codesandbox.io/embed/zjqymm?view=preview&module=%2Findex.html&hidenavigation=1"
@@ -58,7 +58,7 @@ So, we can see that triangle have three vertices with different colors.
 />
 
 
-## Inter-stage variables connect by `location`
+## 通过 `location` 连接阶段间变量
 
 The connection between vertex shader and fragment shader is by index, and the inter-stage variables is by location index.
 
@@ -79,49 +79,37 @@ struct OurVertexShaderOutput {
 };
 ```
 
-The `@builtin(position)` field is a `builtin` variable.
+`OurVertexShaderOutput` 定义中的 `@builtin(position)` 字段是一个 `builtin` 变量。
 
-The `@builtin(position)` between vertex shader and fragment shader is different.
+定义在顶点着色器和片元着色器中的 `@builtin(position)` 意义不相同，在顶点着色器中，`@builtin(position)` 输出的是 GPU 用来绘制图形的坐标点，
+而在片元着色器中，输入 `@builtin(position)` 表示当前片元着色器计算颜色值的像素坐标。
 
-Pixel coordinates are specified by the edges of pixels.
+---
 
-The values provided to the fragment shader are the coordinates of the center of the pixel.
+像素坐标通过像素边缘指定，提供给片元着色器的坐标是每个像素点的中心坐标。
 
-If the texture we were drawing to was 3x2 pixels in size, these would be the coordinates:
+![webgpu pixels](./assets/webgpu-pixels.svg)
 
-![webgpu pixels](./webgpu-pixels.svg)
+通过修改片元着色器，实现棋盘效果：
 
-```javascript
-const module = device.createShaderModule({
-  label: 'our hardcoded checkerboard triangle shaders',
-  code: /* wgsl */ `
-    struct OurVertexShaderOutput {
-      @builtin(position) position: vec4f,
-    };
+```wgsl
+@fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
+  let red = vec4f(1, 0, 0, 1);
+  let cyan = vec4f(0, 1, 1, 1);
 
-    @vertex fn vs(
-      @builtin(vertex_index) vertexIndex : u32
-    ) -> OurVertexShaderOutput {
-      let pos = array(
-        vec2f( 0.0,  0.5),  // top center
-        vec2f(-0.5, -0.5),  // bottom left
-        vec2f( 0.5, -0.5)   // bottom right
-      );
+  let grid = vec2u(fsInput.position.xy) / 8;
+  let checker = (grid.x + grid.y) % 2 == 1;
 
-      var vsOutput: OurVertexShaderOutput;
-      vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
-      return vsOutput;
-    }
-
-    @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
-      let red = vec4f(1, 0, 0, 1);
-      let cyan = vec4f(0, 1, 1, 1);
-
-      let grid = vec2u(fsInput.position.xy) / 8;
-      let checker = (grid.x + grid.y) % 2 == 1;
-
-      return select(red, cyan, checker);
-    }
-  `,
-});
+  return select(red, cyan, checker);
+}
 ```
+
+`fsInput.position` 是一个内建的位置参数，使用其 `xy` 属性可以获取当前片元位置，然后将其转换为 `vec2u` 类型进行棋盘计算。
+
+将上述位置除以 `8` 实现一个格子占 8x8 像素的效果。
+
+`select` 函数根据条件选择前两个参数中的一个返回。
+
+---
+
+即使你不使用 `@builtin(position)`，也可以通过其他方式在片元着色器中获取当前片元的位置，例如通过纹理坐标等。

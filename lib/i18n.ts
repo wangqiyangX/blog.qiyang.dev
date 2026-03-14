@@ -88,7 +88,7 @@ const appText: Record<Locale, AppI18nText> = {
     giscusLang: "en",
   },
   zh: {
-    siteTitle: "Qiyang 的博客",
+    siteTitle: "启阳的博客",
     copyMarkdown: "复制 Markdown",
     open: "打开",
     openInGithub: "在 GitHub 打开",
